@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/adisetiawanx/novel-app/internal/app"
+	"github.com/adisetiawanx/novel-app/internal/app/config"
 	"github.com/adisetiawanx/novel-app/internal/app/module"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,8 +20,10 @@ func InitServer() *echo.Echo {
 }
 
 func Start() {
-	server := InitServer()
+	config.InitServerConfig()
 	db := app.NewDB()
+
+	server := InitServer()
 
 	module.RegisterUserModule(server, db)
 
