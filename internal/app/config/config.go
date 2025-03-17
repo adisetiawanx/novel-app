@@ -14,8 +14,14 @@ type DatabaseConfig struct {
 	Name     string
 }
 
+type TokenConfig struct {
+	AccessSecret  string
+	RefreshSecret string
+}
+
 type AppConfig struct {
 	Database DatabaseConfig
+	Token    TokenConfig
 }
 
 var App AppConfig
@@ -36,5 +42,10 @@ func InitServerConfig() {
 		Host:     v.GetString("DATABASE_HOST"),
 		Port:     v.GetString("DATABASE_PORT"),
 		Name:     v.GetString("DATABASE_NAME"),
+	}
+
+	App.Token = TokenConfig{
+		AccessSecret:  v.GetString("TOKEN_ACCESS_SECRET"),
+		RefreshSecret: v.GetString("TOKEN_REFRESH_SECRET"),
 	}
 }

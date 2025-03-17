@@ -16,10 +16,16 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 	err := cv.validator.Struct(i)
 	if err != nil {
 		var validationErrors validator.ValidationErrors
-		if ok := errors.As(err, &validationErrors); ok {
+		if errors.As(err, &validationErrors) {
 			var errorMessages []string
 			for _, vErr := range validationErrors {
-				errorMessages = append(errorMessages, fmt.Sprintf("%s is %s", vErr.Field(), vErr.Tag()))
+				fieldName := vErr.Field()
+				switch vErr.Tag() {
+				case "eqfield":
+					errorMessages = append(errorMessages, fmt.Sprintf("%s is wrong", fieldName))
+				default:
+					errorMessages = append(errorMessages, fmt.Sprintf("%s is %s", fieldName, vErr.Tag()))
+				}
 			}
 			return fmt.Errorf(strings.Join(errorMessages, ", "))
 		}

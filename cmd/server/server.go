@@ -24,8 +24,9 @@ func Start() {
 	db := app.NewDB()
 
 	server := InitServer()
+	apiGroup := server.Group("/api")
 
-	module.RegisterUserModule(server, db)
+	module.RegisterAuthModule(apiGroup, db)
 
 	server.Logger.Fatal(server.Start(":3000"))
 }

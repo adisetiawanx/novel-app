@@ -9,10 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterUserModule(server *echo.Echo, db *gorm.DB) {
+func RegisterAuthModule(apiGroup *echo.Group, db *gorm.DB) {
 	userRepository := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepository)
-	userController := controller.NewUserController(userService)
+	tokenRepository := repository.NewTokenRepository(db)
+	authService := service.NewAuthService(userRepository, tokenRepository)
+	authController := controller.NewAuthController(authService)
 
-	routes.RegisterUserRoutes(server, userController)
+	routes.RegisterAuthRoutes(apiGroup, authController)
 }

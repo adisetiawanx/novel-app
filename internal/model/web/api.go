@@ -10,5 +10,10 @@ type APIResponse struct {
 }
 
 type UserResponseWrapper struct {
-	User response.UserCreateResponse `json:"user"`
+	User response.AuthRegisterResponse `json:"user"`
+}
+
+type LoginResponseWrapper struct {
+	User  response.AuthLoginResponse      `json:"user"`
+	Token response.AuthLoginTokenResponse `json:"token"`
 }
