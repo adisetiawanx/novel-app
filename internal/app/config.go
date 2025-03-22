@@ -1,4 +1,4 @@
-package config
+package app
 
 import (
 	"log"
@@ -28,7 +28,7 @@ var App AppConfig
 
 func InitServerConfig() {
 	v := viper.New()
-	v.SetConfigFile("internal/app/config/.env")
+	v.SetConfigFile("configs/.env")
 	v.SetConfigType("env")
 	v.AutomaticEnv()
 

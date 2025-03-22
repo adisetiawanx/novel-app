@@ -20,7 +20,7 @@ type User struct {
 	Password  string         `gorm:"size:255;not null"`
 	Phone     string         `gorm:"size:255;not null"`
 	Profile   sql.NullString `gorm:"size:255"`
-	Role      UserRole       `gorm:"type:varchar(10);not null;default:'visitor'"`
+	Role      UserRole       `gorm:"type:ENUM('admin', 'visitor');not null;default:'visitor'"`
 	CreatedAt time.Time      `gorm:"autoCreateTime"`
 	UpdatedAt time.Time      `gorm:"autoUpdateTime"`
 

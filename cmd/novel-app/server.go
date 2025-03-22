@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/adisetiawanx/novel-app/internal/app"
-	"github.com/adisetiawanx/novel-app/internal/app/config"
-	"github.com/adisetiawanx/novel-app/internal/app/module"
+	"github.com/adisetiawanx/novel-app/internal/module"
+	"github.com/adisetiawanx/novel-app/internal/repository"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -20,13 +20,16 @@ func InitServer() *echo.Echo {
 }
 
 func Start() {
-	config.InitServerConfig()
+	app.InitServerConfig()
 	db := app.NewDB()
 
 	server := InitServer()
 	apiGroup := server.Group("/api")
 
-	module.RegisterAuthModule(apiGroup, db)
+	userRepository := repository.NewUserRepository(db)
+	tokenRepository := repository.NewTokenRepository(db)
+
+	module.RegisterAuthModule(apiGroup, tokenRepository, userRepository)
 
 	server.Logger.Fatal(server.Start(":3000"))
 }
