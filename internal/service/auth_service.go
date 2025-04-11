@@ -1,17 +1,20 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
+	"github.com/adisetiawanx/novel-app/internal/dto"
 	"github.com/adisetiawanx/novel-app/internal/helper"
-	"github.com/adisetiawanx/novel-app/internal/model/entity"
-	"github.com/adisetiawanx/novel-app/internal/model/web/request"
+	"github.com/adisetiawanx/novel-app/internal/model"
 	"github.com/adisetiawanx/novel-app/internal/repository"
 	"github.com/google/uuid"
-	"time"
+	"golang.org/x/oauth2"
+	"net/http"
 )
 
 type AuthService interface {
-	Register(request *request.AuthRegisterRequest) (*entity.User, error)
-	Login(request *request.AuthLoginRequest) (*entity.User, string, string, error)
+	HandleGoogleLogin(code string) (*model.User, string, string, error)
+	GenerateGoogleLoginURL(state string) string
 }
 
 type authServiceImpl struct {
@@ -26,55 +29,53 @@ func NewAuthService(userRepository repository.UserRepository, tokenRepository re
 	}
 }
 
-func (service *authServiceImpl) Register(request *request.AuthRegisterRequest) (*entity.User, error) {
-	emailExist, err := service.UserRepository.IsEmailExist(request.Email)
-	if err != nil {
-		return nil, helper.NewInternalServerError()
-	}
-
-	if emailExist {
-		return nil, helper.NewConflictError("email already exist")
-	}
-
-	newId, err := uuid.NewV7()
-	if err != nil {
-		return nil, helper.NewInternalServerError()
-	}
-
-	hashedPassword, err := helper.HashPassword(request.Password)
-	if err != nil {
-		return nil, helper.NewInternalServerError()
-	}
-
-	user, err := service.UserRepository.Save(&entity.User{
-		ID:       newId,
-		Name:     request.Name,
-		Email:    request.Email,
-		Phone:    request.Phone,
-		Password: hashedPassword,
-		Role:     entity.Visitor,
-	})
-
-	if err != nil {
-		return nil, helper.NewInternalServerError()
-	}
-
-	return user, nil
+func (service *authServiceImpl) GenerateGoogleLoginURL(state string) string {
+	googleConfig := helper.GetGoogleOAuthConfig()
+	return googleConfig.AuthCodeURL(state, oauth2.AccessTypeOffline)
 }
 
-func (service *authServiceImpl) Login(request *request.AuthLoginRequest) (*entity.User, string, string, error) {
-	user, err := service.UserRepository.FindByEmail(request.Email)
+func (service *authServiceImpl) HandleGoogleLogin(code string) (*model.User, string, string, error) {
+	googleConfig := helper.GetGoogleOAuthConfig()
+	token, err := googleConfig.Exchange(context.TODO(), code)
 	if err != nil {
 		return nil, "", "", helper.NewInternalServerError()
 	}
 
-	if user == nil {
-		return nil, "", "", helper.NewAuthenticationError("email or password is wrong")
+	client := googleConfig.Client(context.TODO(), token)
+
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
+
+	if err != nil {
+		return nil, "", "", helper.NewInternalServerError()
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, "", "", helper.NewInternalServerError()
 	}
 
-	isPasswordSame := helper.ComparePassword(user.Password, request.Password)
-	if !isPasswordSame {
-		return nil, "", "", helper.NewAuthenticationError("email or password is wrong")
+	var googleUser dto.GoogleUser
+
+	if err = json.NewDecoder(resp.Body).Decode(&googleUser); err != nil {
+		return nil, "", "", helper.NewInternalServerError()
+	}
+
+	newId, err := uuid.NewV7()
+	if err != nil {
+		return nil, "", "", helper.NewInternalServerError()
+	}
+
+	user, err := service.UserRepository.Save(&model.User{
+		ID:         newId,
+		Name:       googleUser.Name,
+		Email:      googleUser.Email,
+		Profile:    googleUser.Picture,
+		Provider:   "google",
+		ProviderID: googleUser.ID,
+	})
+
+	if err != nil {
+		return nil, "", "", helper.NewInternalServerError()
 	}
 
 	newAccessToken, err := helper.CreateAccessToken(user.ID.String(), string(user.Role))
@@ -87,20 +88,6 @@ func (service *authServiceImpl) Login(request *request.AuthLoginRequest) (*entit
 		return nil, "", "", helper.NewInternalServerError()
 	}
 
-	newTokenId, err := uuid.NewV7()
-	if err != nil {
-		return nil, "", "", helper.NewInternalServerError()
-	}
-
-	_, err = service.TokenRepository.Save(&entity.Token{
-		ID:           newTokenId,
-		RefreshToken: newRefreshToken,
-		ExpiresAt:    time.Now().Add(time.Hour * 720),
-		UserID:       user.ID,
-	})
-	if err != nil {
-		return nil, "", "", helper.NewInternalServerError()
-	}
-
 	return user, newAccessToken, newRefreshToken, nil
+
 }

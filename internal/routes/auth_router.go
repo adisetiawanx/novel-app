@@ -7,6 +7,6 @@ import (
 
 func RegisterAuthRoutes(apiGroup *echo.Group, controller controller.AuthController) {
 	group := apiGroup.Group("/auth")
-	group.POST("/register", controller.Register)
-	group.POST("/login", controller.Login)
+	group.GET("/google/login", controller.GoogleLogin)
+	group.GET("/google/callback", controller.GoogleCallback)
 }

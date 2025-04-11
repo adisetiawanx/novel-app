@@ -1,11 +1,11 @@
-CREATE TABLE users (
-    id           CHAR(36) PRIMARY KEY NOT NULL,
-    name         VARCHAR(255) NOT NULL,
-    email        VARCHAR(255) NOT NULL UNIQUE,
-    password     VARCHAR(255) NOT NULL,
-    phone        VARCHAR(255) NOT NULL,
-    profile      VARCHAR(255),
-    role      ENUM('admin', 'visitor') NOT NULL DEFAULT 'visitor',
-    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+CREATE TABLE auth.users (
+   id           UUID PRIMARY KEY NOT NULL,
+   name         VARCHAR(150) NOT NULL,
+   email        VARCHAR(255) NOT NULL UNIQUE,
+   password     VARCHAR(150),
+   profile      VARCHAR(150),
+   role         VARCHAR(20) NOT NULL DEFAULT 'visitor' CHECK (role IN ('admin', 'visitor')),
+   provider     VARCHAR(50) NOT NULL CHECK (provider IN ('google', 'twitter')),
+   provider_id  VARCHAR(100),
+   created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

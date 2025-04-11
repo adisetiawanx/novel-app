@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"github.com/adisetiawanx/novel-app/internal/model/entity"
+	"github.com/adisetiawanx/novel-app/internal/model"
 	"gorm.io/gorm"
 )
 
 type TokenRepository interface {
-	Save(token *entity.Token) (*entity.Token, error)
+	Save(token *model.Token) (*model.Token, error)
 }
 
 type tokenRepositoryImpl struct {
@@ -17,7 +17,7 @@ func NewTokenRepository(db *gorm.DB) TokenRepository {
 	return &tokenRepositoryImpl{DB: db}
 }
 
-func (repository *tokenRepositoryImpl) Save(token *entity.Token) (*entity.Token, error) {
+func (repository *tokenRepositoryImpl) Save(token *model.Token) (*model.Token, error) {
 	result := repository.DB.Create(token)
 
 	if result.Error != nil {

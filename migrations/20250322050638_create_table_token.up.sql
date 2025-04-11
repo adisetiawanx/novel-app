@@ -1,9 +1,11 @@
-CREATE TABLE tokens (
-    id            CHAR(36) PRIMARY KEY NOT NULL,
+CREATE TABLE auth.tokens (
+    id            UUID PRIMARY KEY NOT NULL,
     refresh_token VARCHAR(255) UNIQUE NOT NULL,
     expires_at    TIMESTAMP NOT NULL,
-    user_id       CHAR(36) NOT NULL,
+    user_id       UUID NOT NULL,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_tokens_users FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+    CONSTRAINT fk_tokens_users FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_tokens_user_id ON auth.tokens(user_id);

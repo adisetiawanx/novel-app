@@ -6,7 +6,7 @@ This is an application server built using the Go programming language. This app 
 - Echo (https://github.com/labstack/echo)
 - Validator (https://github.com/go-playground/validator)
 - Gorm (https://github.com/go-gorm/gorm)
-- Gorm MySQL Driver (https://github.com/go-gorm/mysql)
+- Gorm Postgres Driver (https://github.com/go-gorm/postgres)
 - Viper (https://github.com/spf13/viper)
 - Golang JWT (https://github.com/golang-jwt/jwt)
 - Google UUID (https://github.com/google/uuid)
@@ -35,7 +35,7 @@ choco install golang-migrate
 
 #### Using Go
 ```sh
-go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 ```
 
 #### Set Up Environment Variables (Windows)
@@ -57,19 +57,19 @@ For more details, visit the official **golang-migrate** repository (https://gith
 
 #### 2. Apply the Migrations
 ```sh
-migrate -path migrations -database "mysql://<YOUR_DB_USER>:<YOUR_DB_PASSWORD>@tcp(<YOUR_DB_HOST>:<YOUR_DB_PORT>)/<YOUR_DB_NAME>" -verbose up
+migrate -path migrations -database "postgres://<YOUR_DB_USER>:<YOUR_DB_PASSWORD>@<YOUR_DB_HOST>:<YOUR_DB_PORT>/<YOUR_DB_NAME>?sslmode=disable" -verbose up
 ```
 example
 ```sh
-migrate -path migrations -database "mysql://root@tcp(localhost:3306)/novel_app" -verbose up
+migrate -path migrations -database "postgres://root:dev@localhost:5432/novel_app?sslmode=disable" -verbose up
 ```
 #### Rollback Migrations
 ```sh
-migrate -path migrations -database "mysql://<YOUR_DB_USER>:<YOUR_DB_PASSWORD>@tcp(<YOUR_DB_HOST>:<YOUR_DB_PORT>)/<YOUR_DB_NAME>" -verbose down
+migrate -path migrations -database "postgres://<YOUR_DB_USER>:<YOUR_DB_PASSWORD>@<YOUR_DB_HOST>:<YOUR_DB_PORT>/<YOUR_DB_NAME>?sslmode=disable" -verbose down
 ```
 example
 ```sh
-migrate -path migrations -database "mysql://root@tcp(localhost:3306)/novel_app" -verbose down
+migrate -path migrations -database "postgres://root:dev@localhost:5432/novel_app?sslmode=disable" -verbose down
 ```
 
 ### 3. Run the Application

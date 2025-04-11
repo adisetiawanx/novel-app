@@ -16,7 +16,7 @@ func CreateAccessToken(userID string, userRole string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(app.App.Token.AccessSecret))
+	tokenString, err := token.SignedString([]byte(app.Config.Token.AccessSecret))
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +32,7 @@ func CreateRefreshToken(userID string, userRole string) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(app.App.Token.RefreshSecret))
+	tokenString, err := token.SignedString([]byte(app.Config.Token.RefreshSecret))
 	if err != nil {
 		return "", err
 	}
@@ -44,7 +44,7 @@ func ParseAccessToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(app.App.Token.AccessSecret), nil
+		return []byte(app.Config.Token.AccessSecret), nil
 	})
 
 	if err != nil {
@@ -59,7 +59,7 @@ func ParseRefreshToken(tokenString string) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(app.App.Token.RefreshSecret), nil
+		return []byte(app.Config.Token.RefreshSecret), nil
 	})
 
 	if err != nil {

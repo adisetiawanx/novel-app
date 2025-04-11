@@ -20,11 +20,18 @@ type TokenConfig struct {
 }
 
 type AppConfig struct {
-	Database DatabaseConfig
-	Token    TokenConfig
+	Database    DatabaseConfig
+	Token       TokenConfig
+	GoogleOauth GoogleOauthConfig
 }
 
-var App AppConfig
+type GoogleOauthConfig struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURL  string
+}
+
+var Config AppConfig
 
 func InitServerConfig() {
 	v := viper.New()
@@ -36,7 +43,7 @@ func InitServerConfig() {
 		log.Println("No .env file found, relying on environment variables")
 	}
 
-	App.Database = DatabaseConfig{
+	Config.Database = DatabaseConfig{
 		User:     v.GetString("DATABASE_USER"),
 		Password: v.GetString("DATABASE_PASSWORD"),
 		Host:     v.GetString("DATABASE_HOST"),
@@ -44,8 +51,14 @@ func InitServerConfig() {
 		Name:     v.GetString("DATABASE_NAME"),
 	}
 
-	App.Token = TokenConfig{
+	Config.Token = TokenConfig{
 		AccessSecret:  v.GetString("TOKEN_ACCESS_SECRET"),
 		RefreshSecret: v.GetString("TOKEN_REFRESH_SECRET"),
+	}
+
+	Config.GoogleOauth = GoogleOauthConfig{
+		ClientID:     v.GetString("GOOGLE_CLIENT_ID"),
+		ClientSecret: v.GetString("GOOGLE_CLIENT_SECRET"),
+		RedirectURL:  v.GetString("GOOGLE_REDIRECT_URL"),
 	}
 }

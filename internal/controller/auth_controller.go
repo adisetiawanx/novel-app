@@ -2,18 +2,17 @@ package controller
 
 import (
 	"errors"
+	"github.com/adisetiawanx/novel-app/internal/dto"
+	"github.com/adisetiawanx/novel-app/internal/dto/response"
 	"github.com/adisetiawanx/novel-app/internal/helper"
-	"github.com/adisetiawanx/novel-app/internal/model/web"
-	"github.com/adisetiawanx/novel-app/internal/model/web/request"
-	"github.com/adisetiawanx/novel-app/internal/model/web/response"
 	"github.com/adisetiawanx/novel-app/internal/service"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 type AuthController interface {
-	Register(context echo.Context) error
-	Login(context echo.Context) error
+	GoogleLogin(context echo.Context) error
+	GoogleCallback(context echo.Context) error
 }
 
 type authControllerImpl struct {
@@ -26,73 +25,56 @@ func NewAuthController(service service.AuthService) AuthController {
 	}
 }
 
-func (controller *authControllerImpl) Register(ctx echo.Context) error {
-	var req request.AuthRegisterRequest
+func (controller *authControllerImpl) GoogleLogin(ctx echo.Context) error {
+	state := helper.GenerateRandomState()
 
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, web.APIResponse{
-			Message: "Invalid request format",
-			Data:    nil,
-		})
-	}
-
-	if err := ctx.Validate(req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, web.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	user, err := controller.AuthService.Register(&req)
-	var baseError *helper.BaseError
-	if errors.As(err, &baseError) {
-		return ctx.JSON(baseError.StatusCode, web.APIResponse{
-			Message: baseError.Message,
-			Data:    nil,
-		})
-	}
-
-	return ctx.JSON(http.StatusCreated, web.APIResponse{
-		Message: "User Created Successfully",
-		Data: web.UserResponseWrapper{
-			User: response.AuthRegisterResponse{
-				Id: user.ID.String(),
-			},
-		},
+	ctx.SetCookie(&http.Cookie{
+		Name:     "oauth_state",
+		Value:    state,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
 	})
+
+	loginURL := controller.AuthService.GenerateGoogleLoginURL(state)
+	return ctx.Redirect(http.StatusTemporaryRedirect, loginURL)
 }
 
-func (controller *authControllerImpl) Login(ctx echo.Context) error {
-	var req request.AuthLoginRequest
-	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, web.APIResponse{
+func (controller *authControllerImpl) GoogleCallback(ctx echo.Context) error {
+	code := ctx.QueryParam("code")
+	state := ctx.QueryParam("state")
+	
+	cookie, err := ctx.Cookie("oauth_state")
+	if err != nil || cookie.Value != state {
+		return ctx.JSON(http.StatusBadRequest, dto.APIResponse{
+			Message: "Invalid state",
+			Data:    nil,
+		})
+	}
+
+	if code == "" {
+		return ctx.JSON(http.StatusBadRequest, dto.APIResponse{
 			Message: "Invalid request format",
 			Data:    nil,
 		})
 	}
 
-	if err := ctx.Validate(req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, web.APIResponse{
-			Message: err.Error(),
-			Data:    nil,
-		})
-	}
-
-	user, accessToken, refreshToken, err := controller.AuthService.Login(&req)
+	user, accessToken, refreshToken, err := controller.AuthService.HandleGoogleLogin(code)
 	var baseError *helper.BaseError
 	if errors.As(err, &baseError) {
-		return ctx.JSON(baseError.StatusCode, web.APIResponse{
+		return ctx.JSON(baseError.StatusCode, dto.APIResponse{
 			Message: baseError.Message,
 			Data:    nil,
 		})
 	}
 
-	return ctx.JSON(http.StatusOK, web.APIResponse{
+	return ctx.JSON(http.StatusOK, dto.APIResponse{
 		Message: "User Login Successfully",
-		Data: web.LoginResponseWrapper{
+		Data: dto.LoginResponseWrapper{
 			User: response.AuthLoginResponse{
-				Id:    user.ID.String(),
-				Email: user.Email,
+				Id:      user.ID.String(),
+				Email:   user.Email,
+				Profile: user.Profile,
 			},
 			Token: response.AuthLoginTokenResponse{
 				AccessToken:  accessToken,

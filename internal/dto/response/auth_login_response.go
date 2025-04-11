@@ -1,8 +1,9 @@
 package response
 
 type AuthLoginResponse struct {
-	Id    string `json:"id"`
-	Email string `json:"email"`
+	Id      string `json:"id"`
+	Email   string `json:"email"`
+	Profile string `json:"profile"`
 }
 
 type AuthLoginTokenResponse struct {
