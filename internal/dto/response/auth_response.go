@@ -1,9 +1,7 @@
 package response
 
-type AuthLoginResponse struct {
-	Id      string `json:"id"`
-	Email   string `json:"email"`
-	Profile string `json:"profile"`
+type LoginResponseWrapper struct {
+	Token AuthLoginTokenResponse `json:"token"`
 }
 
 type AuthLoginTokenResponse struct {

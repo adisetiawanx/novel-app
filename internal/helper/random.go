@@ -3,6 +3,9 @@ package helper
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
+	"strconv"
+	"time"
 )
 
 func GenerateRandomState() string {
@@ -12,4 +15,9 @@ func GenerateRandomState() string {
 		return ""
 	}
 	return base64.URLEncoding.EncodeToString(b)
+}
+
+func GenerateUniqueSlug(base string) string {
+	suffix := strconv.FormatInt(time.Now().Unix(), 10)
+	return fmt.Sprintf("%s-%s", base, suffix)
 }

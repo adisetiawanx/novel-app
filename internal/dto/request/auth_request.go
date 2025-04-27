@@ -1,4 +1,4 @@
-package dto
+package request
 
 type GoogleUser struct {
 	ID      string `json:"id"`

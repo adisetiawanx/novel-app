@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterAuthModule(apiGroup *echo.Group, tokenRepository repository.TokenRepository, userRepository repository.UserRepository) {
+func RegisterAuthModule(server *echo.Echo, tokenRepository repository.TokenRepository, userRepository repository.UserRepository) {
 	authService := service.NewAuthService(userRepository, tokenRepository)
 	authController := controller.NewAuthController(authService)
-	routes.RegisterAuthRoutes(apiGroup, authController)
+	routes.RegisterAuthRoutes(server, authController)
 }

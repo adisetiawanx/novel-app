@@ -9,9 +9,13 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.13.3
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/crypto v0.37.0
 	golang.org/x/oauth2 v0.29.0
+	gorm.io/driver/postgres v1.5.11
+	gorm.io/gorm v1.25.12
 
 )
 
@@ -54,6 +58,4 @@ require (
 	golang.org/x/time v0.8.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/postgres v1.5.11 // indirect
-	gorm.io/gorm v1.25.12 // indirect
 )

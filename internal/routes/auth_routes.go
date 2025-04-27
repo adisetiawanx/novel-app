@@ -5,8 +5,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterAuthRoutes(apiGroup *echo.Group, controller controller.AuthController) {
-	group := apiGroup.Group("/auth")
+func RegisterAuthRoutes(server *echo.Echo, controller controller.AuthController) {
+	group := server.Group("/auth")
 	group.GET("/google/login", controller.GoogleLogin)
 	group.GET("/google/callback", controller.GoogleCallback)
+	group.POST("/refresh", controller.RefreshToken)
 }

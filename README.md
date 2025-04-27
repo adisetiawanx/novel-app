@@ -11,6 +11,8 @@ This is an application server built using the Go programming language. This app 
 - Golang JWT (https://github.com/golang-jwt/jwt)
 - Google UUID (https://github.com/google/uuid)
 - Bcrypt (https://golang.org/x/crypto/bcrypt)
+- Outh2 (https://golang.org/x/oauth2)
+- Resize (https://github.com/nfnt/resize)
 
 
 ## Installation Guide

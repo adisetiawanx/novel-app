@@ -9,7 +9,6 @@ import (
 type UserRepository interface {
 	Save(user *model.User) (*model.User, error)
 	FindByID(ID string) (*model.User, error)
-	IsEmailExist(email string) (bool, error)
 	FindByEmail(email string) (*model.User, error)
 }
 
@@ -43,16 +42,6 @@ func (repository *userRepositoryImpl) FindByID(ID string) (*model.User, error) {
 	}
 
 	return user, nil
-}
-
-func (repository *userRepositoryImpl) IsEmailExist(email string) (bool, error) {
-	var count int64
-	result := repository.DB.Model(&model.User{}).Where("email = ?", email).Count(&count)
-	if result.Error != nil {
-		return count > 0, result.Error
-	}
-
-	return count > 0, nil
 }
 
 func (repository *userRepositoryImpl) FindByEmail(email string) (*model.User, error) {

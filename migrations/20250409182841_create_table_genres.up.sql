@@ -1,6 +1,6 @@
 CREATE TABLE novelku.genres (
     id    UUID PRIMARY KEY NOT NULL,
-    slug       VARCHAR(50) NOT NULL UNIQUE,
+    slug  VARCHAR(50) NOT NULL UNIQUE,
     name  VARCHAR(50) NOT NULL UNIQUE
 );
 

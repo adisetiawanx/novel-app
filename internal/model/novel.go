@@ -23,10 +23,10 @@ type Novel struct {
 	ViewTotal        int       `gorm:"default:0;not null"`
 	CreatedAt        time.Time `gorm:"autoCreateTime"`
 
-	Genres   []*Genre   `gorm:"many2many:novelku.novel_genres;joinForeignKey:NovelID;joinReferences:GenreID"`
-	Authors  []*Author  `gorm:"many2many:novelku.novel_authors;joinForeignKey:NovelID;joinReferences:AuthorID"`
-	Artists  []*Artist  `gorm:"many2many:novelku.novel_artists;joinForeignKey:NovelID;joinReferences:ArtistID"`
-	Chapters []*Chapter `gorm:"foreignKey:NovelID"`
+	Genres      []*Genre      `gorm:"many2many:novelku.novel_genres;joinForeignKey:NovelID;joinReferences:GenreID"`
+	Authors     []*Author     `gorm:"many2many:novelku.novel_authors;joinForeignKey:NovelID;joinReferences:AuthorID"`
+	Translators []*Translator `gorm:"many2many:novelku.novel_translators;joinForeignKey:NovelID;joinReferences:TranslatorID"`
+	Chapters    []*Chapter    `gorm:"foreignKey:NovelID"`
 }
 
 func (Novel) TableName() string {
